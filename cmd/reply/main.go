@@ -5,15 +5,14 @@ import (
 	"os"
 
 	"github.com/mitchellh/cli"
-	"github.com/yyoshiki41/tw-bot"
+	"github.com/yyoshiki41/tw-cli"
 )
 
 func main() {
-	c := cli.NewCLI("twbot", twbot.Version())
+	c := cli.NewCLI("twcli", twcli.Version())
 	c.Args = os.Args[1:]
 	c.Commands = map[string]cli.CommandFactory{
-		"search": twbot.SearchCommandFactory,
-		"reply":  twbot.ReplyCommandFactory,
+		"reply": twcli.ReplyCommandFactory,
 	}
 
 	exitCode, err := c.Run()

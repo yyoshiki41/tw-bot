@@ -1,4 +1,4 @@
-package twbot
+package twcli
 
 import (
 	"os"
@@ -24,13 +24,6 @@ func init() {
 			Writer: os.Stdout,
 		},
 	}
-}
-
-// SearchCommandFactory is
-func SearchCommandFactory() (cli.Command, error) {
-	return &searchCommand{
-		ui: UI,
-	}, nil
 }
 
 // ReplyCommandFactory is

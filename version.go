@@ -1,4 +1,4 @@
-package twbot
+package twcli
 
 const (
 	version = "0.1.0"
