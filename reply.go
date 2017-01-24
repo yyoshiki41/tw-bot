@@ -35,7 +35,7 @@ func (c *replyCommand) Run(args []string) int {
 		return 1
 	}
 
-	var sourceID int64 = 751227608755499008
+	var userID int64 = 751227608755499008
 
 	consumerKey := os.Getenv("CONSUMER_KEY")
 	consumerSecret := os.Getenv("CONSUMER_SECRET")
@@ -59,7 +59,6 @@ func (c *replyCommand) Run(args []string) int {
 		Query: query,
 		Count: count,
 	})
-
 	if err != nil {
 		c.ui.Error(fmt.Sprintf(
 			"Failed to search: %s", err))
@@ -69,38 +68,41 @@ func (c *replyCommand) Run(args []string) int {
 			"search: StatusCode %d", resp.StatusCode))
 	}
 
+	followers, resp, err := client.Followers.IDs(&twitter.FollowerIDParams{
+		UserID: userID,
+		Count:  5000,
+	})
+	if err != nil {
+		c.ui.Error(fmt.Sprintf(
+			"Failed to followers/ids: %s", err))
+	}
+	if resp.StatusCode != 200 {
+		c.ui.Error(fmt.Sprintf(
+			"followers/ids: StatusCode %d", resp.StatusCode))
+	}
+
 	for _, t := range search.Statuses {
-		relationship, resp, err := client.Friendships.Show(&twitter.FriendshipShowParams{
-			SourceID: sourceID,
-			TargetID: t.User.ID,
-		})
-		if err != nil {
-			c.ui.Error(fmt.Sprintf(
-				"Failed to friendships/show: %s", err))
-		}
-		if resp.StatusCode != 200 {
-			c.ui.Error(fmt.Sprintf(
-				"friendships/show: StatusCode %d", resp.StatusCode))
-		}
+		// TODO: 送信済みユーザーは弾く
 
-		// TODO: 今日送信したユーザーをファイル書き出し
-		// 送信済みユーザーは弾く
+		for _, i := range followers.IDs {
+			// follower の場合のみ、DM送信
+			if i == t.User.ID {
+				/*
+								dm, resp, err := client.DirectMessages.New(&twitter.DirectMessageNewParams{
+									UserID: t.User.ID,
+									Text:   "",
+								})
 
-		if relationship.Source.FollowedBy {
-			/*
-				dm, resp, err := client.DirectMessages.New(&twitter.DirectMessageNewParams{
-					UserID: t.User.ID,
-					Text:   "",
-				})
-
-				if err != nil {
-					log.Fatalf("%s", err)
-				}
-				if resp.StatusCode != 200 {
-					log.Fatalf("status code %d", resp.StatusCode)
-				}
-				fmt.Printf("%v\n", dm)
-			*/
+								if err != nil {
+									log.Fatalf("%s", err)
+								}
+								if resp.StatusCode != 200 {
+									log.Fatalf("status code %d", resp.StatusCode)
+								}
+					// TODO: 今日送信したユーザーをファイル書き出し
+				*/
+				break
+			}
 		}
 	}
 
